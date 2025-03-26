@@ -1,0 +1,31 @@
+Package: Easy2
+Type: Package
+Title: Easy2 = EasyStrata2 + EasyQC2
+Version: 1.2.4
+Date: 2025-01-28
+Author: Thomas Winkler
+Maintainer: Thomas Winkler <thomas.winkler@klinik.uni-regensburg.de>
+Description: Easy2 - A toolbox for GWA-QC (EasyQC2) and GWA-GxE analysis (EasyStrata2). 
+License: GPL-3
+LazyLoad: yes
+Depends:
+        methods,	Cairo,plotrix,data.table,forestplot,bigsnpr,doParallel,foreach,parallel
+Collate: clsEqcReader.r clsRCD.r clsGWADATA.r clsEASYMERGE.r
+        clsEASYRBIND.r fnEasyPLOT.r clsREPORT.r clsMERGE.r clsSPLOT.r
+        clsADDCOL.r clsADDGENE.r clsADDGMAP.r clsADJUSTALLELES.r
+        clsADJUSTALLELESSIMPLE.r clsAFCHECK.r clsANNOTATE.r
+        clsBONFERRONI.r clsBRPLOT.r clsCALCPDIFF.r clsCALCPDIFFDIFF.r
+        clsCALCPHET.r clsCALCULATE.r clsCLEAN.r clsCLEANDUPLICATES.r
+        clsCREATECPAID.r clsCREATECPTID.r clsCRITERION.r clsEDITCOL.r
+        clsEFFECTPLOT.r clsENRICHMENT.r clsEVALSTAT.r clsEXTRACTSNPS.r
+        clsFANCYPLOT.r clsFDR.r clsFILTER.r clsFLIPSTRAND.r
+        clsFORESTPLOT.r clsGC.r clsGETCOLS.r clsGETNUM.r clsGETVAR.r
+        clsGETVARTYPE.r clsGWASCATALOG.r clsHARMONIZEALLELES.r
+        clsINDEP.r clsINDEP2.r clsLIFTOVER.r clsLOADINFO.r
+        clsJOINTTEST.r clsMERGEEASYIN.r clsMETAANALYSIS.r clsMHPLOT.r
+        clsMIAMIPLOT.r clsPCA2STEP.r clsPZPLOT.r clsQQPLOT.r
+        clsRADDCOL.r clsREMOVECOL.r clsREMOVESNPS.r clsRENAMECOL.r
+        clsRENAMEMARKER.r clsRPLOT.r clsSORT.r clsSTRSPLITCOL.r
+        clsWEIGHTEDHYPOTHESIS.r clsWRITE.r Easy2.r
+NeedsCompilation: no
+Packaged: 2023-05-24 15:57:54 UTC; wit59712
