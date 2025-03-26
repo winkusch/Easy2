@@ -31,6 +31,10 @@ Alternatively, you can download the tarball and install it in R:
 install.packages("EasyX_VERSION.tar.gz")
 ```
 
+### Documentation
+
+Please see the [wiki](https://github.com/winkusch/Easy2/wiki) for Easy2 functions and parameters. 
+
 ### Executing program
 
 To start the program, you will have to load the package in R and call an ecf-script by the EasyX function: 
