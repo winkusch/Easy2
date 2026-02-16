@@ -2,7 +2,7 @@ Package: Easy2
 Type: Package
 Title: Easy2 = EasyStrata2 + EasyQC2
 Version: 1.3.4
-Date: 2025-10-23
+Date: 2026-02-16
 Author: Thomas Winkler
 Maintainer: Thomas Winkler <thomas.winkler@ur.de>
 Description: Easy2 - A toolbox for GWA-QC (EasyQC2) and GWA-GxE analysis (EasyStrata2). 
