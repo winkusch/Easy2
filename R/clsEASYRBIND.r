@@ -2,6 +2,7 @@ setClass("EASYRBIND",
 	representation = representation(
 						### EASYIN PARAMS
 						fileIn						=	"character",
+						fileInTag					=	"character",
 						strMissing					= 	"character",
 						strSeparator				= 	"character",
 						acolIn						=	"character",
@@ -30,6 +31,7 @@ setClass("EASYRBIND",
 	prototype = prototype(
 						### EASYIN PARAMS
 						fileIn						=	"",
+						fileInTag					=	"1",
 						strMissing					= 	"NA",
 						strSeparator				= 	"WHITESPACE",
 						acolIn						=	"",
@@ -98,6 +100,7 @@ EASYRBIND.easyrbind <- function(objER, strConfigCommand, icount.GWADATA) {
 
 	#aEqcSlotNamesIn = c("fileIn","fileInShortName", "fileInTag", "fileInType", "strMissing", "strSeparator", "acolIn", "acolInClasses", "pathOut")
 	aEqcSlotNamesIn = c("fileIn", 
+						"fileInTag",
 						"strMissing",
 						"strSeparator", 
 						"acolIn", 

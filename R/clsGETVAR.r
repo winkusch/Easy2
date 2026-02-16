@@ -3,6 +3,7 @@ setClass("GETVAR",
 						strEqcCommand			=	"character",
 						colInMarker				=	"character",
 						strMarker				=	"character",
+						strMarkerTag			=	"character", # used for report and write
 						blnTry2Combine			= 	"logical",
 						strAlleleRef			=	"character",
 						colInA1					=	"character",
@@ -16,6 +17,7 @@ setClass("GETVAR",
 						strEqcCommand			=	"",
 						colInMarker				=	"",
 						strMarker				=	"",
+						strMarkerTag			=	"",
 						blnTry2Combine			= 	TRUE,
 						strAlleleRef			=	"",
 						colInA1					=	"",
@@ -31,7 +33,7 @@ setClass("GETVAR",
 setGeneric("setGETVAR", function(object) standardGeneric("setGETVAR"))
 setMethod("setGETVAR", signature = (object = "GETVAR"), function(object) {
 	
-	aEqcSlotNamesIn = c("colInMarker", "strMarker", "blnTry2Combine","strAlleleRef","colInA1","colInA2","acolInFreq","acolInBeta","acolInOr","blnUseA1only")
+	aEqcSlotNamesIn = c("colInMarker", "strMarker", "strMarkerTag","blnTry2Combine","strAlleleRef","colInA1","colInA2","acolInFreq","acolInBeta","acolInOr","blnUseA1only")
 
 	objEqcReader <- EqcReader(object@strEqcCommand,aEqcSlotNamesIn)
 	
@@ -76,8 +78,10 @@ GETVAR.GWADATA.valid <- function(objGETVAR, objGWA) {
 		stop(paste(" EASY ERROR:GETVAR\n Defined acolInBeta columns \n",paste(objGETVAR@acolInBeta[which(!(objGETVAR@acolInBeta %in% objGWA@aHeader))],collapse=","), "\n are not available in GWA data-set \n",objGWA@fileIn,"\n PLease specify correct column name.", sep=""))
 	if(any(!(objGETVAR@acolInOr %in% objGWA@aHeader)) & (objGETVAR@acolInOr[1] != ""))
 		stop(paste(" EASY ERROR:GETVAR\n Defined acolInOr columns \n",paste(objGETVAR@acolInOr[which(!(objGETVAR@acolInOr %in% objGWA@aHeader))],collapse=","), "\n are not available in GWA data-set \n",objGWA@fileIn,"\n PLease specify correct column name.", sep=""))
-		
-	return(TRUE)
+	
+	if(objGETVAR@strMarkerTag=="") objGETVAR@strMarkerTag = objGETVAR@strMarker
+	
+	return(objGETVAR)
 }
 
 #############################################################################################################################
@@ -85,6 +89,7 @@ GETVAR.run <- function(objGV, objGWA, objREPORT) {
 	
 	colInMarker <- objGV@colInMarker
 	strMarker 	<- objGV@strMarker
+	strMarkerTag 	<- objGV@strMarkerTag
 	
 	strAlleleRef <- objGV@strAlleleRef
 	colInA1	<- objGV@colInA1
@@ -138,9 +143,9 @@ GETVAR.run <- function(objGV, objGWA, objREPORT) {
  
 	#if(!blnSupressOutput) GWADATA.write(objGWA.iCrit, strSuffix = ".GETVAR")
 	
-	strMarker = gsub("\"","",strMarker)
+	strMarkerTag = gsub("\"","",strMarkerTag)
 	
-	objREPORT <- REPORT.addval(objREPORT,paste("GETVAR.",strMarker,sep=""),numVarFound)
+	objREPORT <- REPORT.addval(objREPORT,paste("GETVAR.",strMarkerTag,sep=""),numVarFound)
 
 	return(list(objGWA.var,objREPORT))
 }

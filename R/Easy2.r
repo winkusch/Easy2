@@ -4,11 +4,14 @@
 # options(show.error.messages = TRUE)
 # options(warn=0)
 
-# setwd("/data/M_GENETICS/ScriptsDBDebug/easy_x/git/241106_add_maffilt_rbind/")
+# setwd("/data/M_GENETICS/ScriptsDBDebug/easy_x/git/250328_addgene/")
 
 # #fileECF	<-	"2_cpaid.ecf"
 # # fileECF	<-	"rbind_maf001.ecf"
-# fileECF	<-	"rbind.ecf"
+# fileECF	<-	"5_3_add_genes.ecf"
+
+# pathOut=NA
+# fileMerge=NA
 
 # pathClasses <- 	"/data/M_GENETICS/ScriptsDBDebug/easy_x/git/Easy2/R/"
 # blnLogMemoryExtern <- FALSE
@@ -46,7 +49,7 @@
 # shMemLog<-"/d/GENETICS/ScriptsDBDebug/easy_x/bin/fnLogMem.sh"
 # if(blnLogMemoryExtern) 
 	# system2(shMemLog, args=c(Sys.getpid(),Sys.getenv("USER"),fileEcfOut), wait=FALSE)
-
+	
 # # # ### NEED TO SET STOP CONDITION AFTER EASY2 FUN CALL !!!!!!!!!
 
 
@@ -65,15 +68,26 @@ fnSetNumCol <- function(objGWA) {
 	}
 	return(objGWA)
 }
+fnSetFileInTagCol <- function(objGWA) {
+
+	if(objGWA@fileInTag!="") {
+		objGWA <- GWADATA.cbind(objGWA, rep(objGWA@fileInTag,nrow(objGWA@tblGWA)), "fileInTag")
+	}
+	
+	return(objGWA)
+}
+
+
+
 Easy2.run <- function(fileECF,blnValidityCheckOnly=FALSE,blnReturnGwadata=FALSE,blnReturnReport=FALSE,aFileIn=c(),fileMerge=NA,pathOut=NA){ 
 	
 	cat("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n")
-	cat("|       Easy2	   |      1.2.4.b30   |      28/January/2025  |\n")
+	cat("|       Easy2	   |      1.3.4.b42  |     23/October/2025    |\n")
 	cat("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n")
 	cat("|  (C) 2013 Thomas Winkler, GNU General Public License, v3   |\n")
 	cat("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n")
 	cat("|  For bug-report, please e-mail:                            |\n")
-	cat("|  thomas.winkler@klinik.uni-regensburg.de                   |\n")
+	cat("|  thomas.winkler@ur.de         					          |\n")
 	cat("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n")
 	#### b3 everytime something changes the build gets up
 	####   eg bugfix 
@@ -101,6 +115,15 @@ Easy2.run <- function(fileECF,blnValidityCheckOnly=FALSE,blnReturnGwadata=FALSE,
 	#### b28: fix paral issue with missing lib on worker
 	#### b29: add tempdir to fread
 	#### b30: correct tempdir default value to fread, correct blnHeader EASYMERGE
+	#### b31: remove dups from ADDGENE
+	#### b32: fix empty forestplot by adding print(forestplot(...))
+	#### 1.2.6.b33: add --strMarkerTag to GETVAR
+	#### 1.2.7.b34: add X chr to INDEP
+	#### 1.2.8.b35: allow "X" in manhattan plot (recode X to 23)
+	#### 1.2.10.b37: bugfix chr x check 
+	#### 1.3.0.b38: add rbind tag to GWADATA; add one-column tags to INDEP
+	#### 1.3.1.b39: mergeeasysin using isMergedSet
+	#### 1.3.4.b42: INDEP blnRetainRegionLead to retain regionLead in locusLead when no region variant is in refpanel
 	
 	
 	cat("\n")
@@ -410,6 +433,8 @@ Easy2.run <- function(fileECF,blnValidityCheckOnly=FALSE,blnReturnGwadata=FALSE,
 					nGWAmt <- 1
 				}
 				
+				# isMergedSet = FALSE
+				
 				for(iGWAmt in 1:nGWAmt) {
 					
 					isGarbageCleaning <- ifelse(isValidScript, objGWA@blnGarbageCleaning, FALSE)
@@ -453,6 +478,10 @@ Easy2.run <- function(fileECF,blnValidityCheckOnly=FALSE,blnReturnGwadata=FALSE,
 						}
 						
 						objGWA <- fnSetNumCol(objGWA)
+						# objGWA <- fnSetFileInTagCol(objGWA)
+						
+						# objGWA <- fnSetTag(objGWA)
+
 						# if(objGWA@astrSetNumCol[1]!="") {
 							# for(strAddCol in objGWA@astrSetNumCol) {
 								# ## strAddCol N=200
@@ -489,6 +518,7 @@ Easy2.run <- function(fileECF,blnValidityCheckOnly=FALSE,blnReturnGwadata=FALSE,
 										objEASYMERGE <- EASYMERGE.read.10rows(objEASYMERGE)
 									}
 									objEASYMERGE <- fnSetNumCol(objEASYMERGE)
+									
 									EASYMERGE.GWADATA.valid(objEASYMERGE, objGWA)
 									objGWA <- EASYMERGE.run(objEASYMERGE, objGWA)
 								}
@@ -519,6 +549,9 @@ Easy2.run <- function(fileECF,blnValidityCheckOnly=FALSE,blnReturnGwadata=FALSE,
 										objEASYRBIND <- EASYRBIND.read.10rows(objEASYRBIND)
 									}
 									objEASYRBIND <- fnSetNumCol(objEASYRBIND)
+									objEASYRBIND <- fnSetFileInTagCol(objEASYRBIND)
+									if(all(names(objGWA@tblGWA)!="fileInTag")) objGWA <- fnSetFileInTagCol(objGWA)
+									
 									objGWA <- EASYRBIND.run(objEASYRBIND, objGWA)
 								}
 								## clean up too much allocated space
@@ -576,12 +609,14 @@ Easy2.run <- function(fileECF,blnValidityCheckOnly=FALSE,blnReturnGwadata=FALSE,
 							
 							objME <- MERGEEASYIN(strCommand, fileOutShortName)
 							MERGEEASYIN.GWADATA.valid(objME, objGWA)
+							if(objME@blnRbind) objGWA <- fnSetFileInTagCol(objGWA)
+							
 							if(iGWAmt == 1) {
-								### start first
+							### start first
 								objGWA.merged <- MERGEEASYIN.start(objME, objGWADATA.default, objGWA)
-							}
-							if(iGWAmt > 1 & objGWA.merged@fileInMergeTag == objGWA@fileInMergeTag) {
-								### add 
+							} 
+							
+							if(iGWAmt > 1 & objGWA.merged@fileInMergeTag == objGWA@fileInMergeTag) {	### add 
 								objGWA.merged <- MERGEEASYIN.run(objME, objGWA.merged, objGWA)
 							}
 						} 
@@ -1183,7 +1218,7 @@ Easy2.run <- function(fileECF,blnValidityCheckOnly=FALSE,blnReturnGwadata=FALSE,
 							# if(isValidScript) stop()
 							objGV 	<- GETVAR(strCommand)
 							
-							GETVAR.GWADATA.valid(objGV, objGWA)
+							objGV = GETVAR.GWADATA.valid(objGV, objGWA)
 							
 							# if(isValidScript & iGWAmt==2) stop()
 							lsOut 	<- GETVAR.run(objGV, objGWA, objREPORT)
@@ -1197,13 +1232,13 @@ Easy2.run <- function(fileECF,blnValidityCheckOnly=FALSE,blnReturnGwadata=FALSE,
 								REPORT.write(objREPORT)
 								
 								## write out for specific file: 
-								strMarker = gsub("\"","",objGV@strMarker)
-								strMarker = gsub(":",".",strMarker)
-								if(nrow(objGWA.var@tblGWA)>0) GWADATA.write(objGWA.var, strSuffix = paste(".",strMarker,sep=""),blnWrite10rows=FALSE)
+								strMarkerTag = gsub("\"","",objGV@strMarkerTag)
+								strMarkerTag = gsub(":",".",strMarkerTag)
+								if(nrow(objGWA.var@tblGWA)>0) GWADATA.write(objGWA.var, strSuffix = paste(".",strMarkerTag,sep=""),blnWrite10rows=FALSE)
 								
 								## write out combined file if requested 
 								if(objGV@blnTry2Combine) {
-									fileOutVar = paste(fileOutBody,".",strMarker,".txt",sep="")
+									fileOutVar = paste(fileOutBody,".",strMarkerTag,".txt",sep="")
 									## clean up if combined file already exists at first file
 									if(iGWA == 1 & file.exists(fileOutVar)) file.remove(fileOutVar)	
 									
@@ -1500,7 +1535,7 @@ Easy2.run <- function(fileECF,blnValidityCheckOnly=FALSE,blnReturnGwadata=FALSE,
 						}
 						if(strScriptFun == "FILTER") {
 							objFILTER 	<- FILTER(strCommand)
-							lsOut 		<- FILTER.run(objFILTER, objGWA, objREPORT)
+							lsOut 		<- FILTER.run(objFILTER, objGWA, objREPORT, !isValidScript)
 							objGWA 		<- lsOut[[1]]
 							objREPORT 	<- lsOut[[2]]
 							rm(lsOut)

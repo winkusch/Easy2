@@ -4,11 +4,10 @@ setClass("INDEP",
 						rcdCriterion		=	"character",
 						arcdCriterion		=	"character",
 						acolPval			=	"character",
-						astrPvalTag			=	"character",
-						astrTag				=	"character",
+						astrTag				=	"character", # used for multiple acolPval
+						colTag				=	"character", # used for one acolPval with different tags in the column
 						anumPvalLim			=	"numeric",
 						acolIndep			=	"character",
-						astrIndepTag		=	"character",
 						anumIndepLim		=	"numeric",
 						strIndepDir			=	"character",
 						colInChr			=	"character",
@@ -25,6 +24,7 @@ setClass("INDEP",
 						fileClumpBed		= 	"character",
 						fileClumpSample		= 	"character",
 						numR2Thrs			= 	"numeric",
+						blnRetainRegionLead = 	"logical",
 						blnParal			= 	"logical",
 						pathLibLoc			= 	"character",
 						numR2PosSize		=	"numeric",
@@ -52,11 +52,10 @@ setClass("INDEP",
 						rcdCriterion		=	"",
 						arcdCriterion		=	"",
 						acolPval			=	"",
-						astrPvalTag			=	"",
 						astrTag				=	"",
+						colTag				=	"",
 						anumPvalLim			=	1,
 						acolIndep			=	"",
-						astrIndepTag		=	"",
 						anumIndepLim		=	1,
 						strIndepDir			=	"min",
 						colInChr			=	"",
@@ -78,6 +77,7 @@ setClass("INDEP",
 						blnClumpInSignal	= 	TRUE,
 						blnParal			= 	FALSE,
 						pathLibLoc			= 	"",
+						blnRetainRegionLead = 	FALSE,
 						fileGene			= 	"",
 						colGeneChr			=	"Chr",
 						colGenePosStart		=	"Pos1",
@@ -101,10 +101,10 @@ setClass("INDEP",
 setGeneric("setINDEP", function(object) standardGeneric("setINDEP"))
 setMethod("setINDEP", signature = (object = "INDEP"), function(object) {
 	
-	aEqcSlotNamesIn = c("rcdCriterion","arcdCriterion","acolPval","astrPvalTag","astrTag","anumPvalLim","colInChr","colInPos","numPosLim","numPosRegionExtension",
-						"acolIndep", "astrIndepTag", "anumIndepLim","strIndepDir",
+	aEqcSlotNamesIn = c("rcdCriterion","arcdCriterion","acolPval","astrTag","colTag","anumPvalLim","colInChr","colInPos","numPosLim","numPosRegionExtension",
+						"acolIndep", "anumIndepLim","strIndepDir",
 						"fileRecombRate","colRecombRateChr","colRecombRatePos","colRecombRate","numRecombRateLim",
-						"fileClumpBed","fileClumpSample","numR2Thrs","blnParal","pathLibLoc","numR2PosSize","numR2VarSize","blnClumpInSignal",
+						"fileClumpBed","fileClumpSample","numR2Thrs","blnParal","pathLibLoc","numR2PosSize","numR2VarSize","blnClumpInSignal","blnRetainRegionLead",
 						"fileGene","colGeneChr","colGenePosStart","colGenePosStop","colGeneName",
 						"fileAnnot","strAnnotTag","colAnnotTag","colAnnotChr","colAnnotPos","colAnnotCoord","numAnnotPosLim",
 						"blnAddIndepInfo","colInMarker","strTag",
@@ -137,8 +137,7 @@ validINDEP <- function(objINDEP) {
 		stop(paste(" EASY ERROR:INDEP\n No column colInChr defined. Please set colInChr.", sep=""))
 	if(objINDEP@colInPos == "") 
 		stop(paste(" EASY ERROR:INDEP\n No column colInPos defined. Please set colInPos.", sep=""))
-
-
+	
 	# ## check fileRecombRate
 	# if(objINDEP@fileRecombRate=="") 
 		# stop(paste("EASY ERROR:INDEP\n File fileRecombRate undefined.\n Please set --fileRecombRate or reset --blnRecombRate 0.", sep=""))
@@ -243,13 +242,13 @@ INDEP.GWADATA.valid <- function(objINDEP, objGWA) {
 		
 		if(length(objINDEP@anumPvalLim)==1 & length(objINDEP@acolPval)>1) objINDEP@anumPvalLim = rep(objINDEP@anumPvalLim[1], length(objINDEP@acolPval))
 		
-		if(all(objINDEP@astrPvalTag=="")) objINDEP@astrPvalTag = objINDEP@acolPval
+		if(all(objINDEP@astrTag=="")) objINDEP@astrTag = objINDEP@acolPval
 		
-		if(any(duplicated(objINDEP@astrPvalTag))) {
-			stop(paste("EASY ERROR:INDEP\n Created duplicated astrPvalTag \n ",paste(objINDEP@astrPvalTag,collapse=","),"\n Please use --astrPvalTag to set unique tags.", sep=""))
+		if(any(duplicated(objINDEP@astrTag))) {
+			stop(paste("EASY ERROR:INDEP\n Created duplicated astrTag \n ",paste(objINDEP@astrTag,collapse=","),"\n Please use --astrTag to set unique tags.", sep=""))
 		}
 
-		if(all(objINDEP@astrTag=="")) objINDEP@astrTag = objINDEP@astrPvalTag
+		# if(all(objINDEP@astrTag=="")) objINDEP@astrTag = objINDEP@astrPvalTag
 		
 		if(length(objINDEP@arcdCriterion)>1&objINDEP@arcdCriterion[1]!="") {
 			if(length(objINDEP@acolPval)!=length(objINDEP@arcdCriterion)) {
@@ -269,13 +268,13 @@ INDEP.GWADATA.valid <- function(objINDEP, objGWA) {
 		
 		if(length(objINDEP@anumIndepLim)==1 & length(objINDEP@acolIndep)>1) objINDEP@anumIndepLim = rep(objINDEP@anumIndepLim[1], length(objINDEP@acolIndep))
 		
-		if(all(objINDEP@astrIndepTag=="")) objINDEP@astrIndepTag = objINDEP@acolIndep
+		if(all(objINDEP@astrTag=="")) objINDEP@astrTag = objINDEP@acolIndep
 		
-		if(any(duplicated(objINDEP@astrIndepTag))) {
-			stop(paste("EASY ERROR:INDEP\n Created duplicated astrIndepTag \n ",paste(objINDEP@astrIndepTag,collapse=","),"\n Please use --astrIndepTag to set unique tags.", sep=""))
+		if(any(duplicated(objINDEP@astrTag))) {
+			stop(paste("EASY ERROR:INDEP\n Created duplicated astrTag \n ",paste(objINDEP@astrTag,collapse=","),"\n Please use --astrTag to set unique tags.", sep=""))
 		}
 		
-		if(all(objINDEP@astrTag=="")) objINDEP@astrTag = objINDEP@astrIndepTag
+		#if(all(objINDEP@astrTag=="")) objINDEP@astrTag = objINDEP@astrIndepTag
 		
 		if(length(objINDEP@arcdCriterion)>1&objINDEP@arcdCriterion[1]!="") {
 			if(length(objINDEP@acolIndep)!=length(objINDEP@arcdCriterion)) {
@@ -299,6 +298,10 @@ INDEP.GWADATA.valid <- function(objINDEP, objGWA) {
 			stop(paste(" EASY ERROR:INDEP\n Defined column colInGPos \n",objINDEP@colInGPos, "\n is not available in GWA data-set \n",objGWA@fileIn,"\n PLease specify correct column name.", sep=""))	
 	}
 	
+	isAv <- objINDEP@colTag %in% objGWA@aHeader
+	if(objINDEP@colTag!="" & !(objINDEP@colTag %in% objGWA@aHeader))
+		stop(paste(" EASY ERROR:INDEP\n Defined column colTag \n",objINDEP@colTag, "\n is not available in GWA data-set \n",objGWA@fileIn,"\n PLease specify correct column name or remove --colTag.", sep=""))
+	
 
 	if(any(duplicated(objINDEP@astrTag))) {
 		stop(paste("EASY ERROR:INDEP\n Created duplicated astrTag \n ",paste(objINDEP@astrTag,collapse=","),"\n Please use --astrTag to set unique tags.", sep=""))
@@ -311,12 +314,13 @@ INDEP.GWADATA.valid <- function(objINDEP, objGWA) {
 	
 		if(grepl("<CHR>",objINDEP@fileClumpBed,fixed=T)) {
 			fileClumpBed = c()
-			for(chr in 1:22) fileClumpBed = c(fileClumpBed, gsub("<CHR>",chr,objINDEP@fileClumpBed,fixed=T))
+			for(chr in c(1:22,"X")) fileClumpBed = c(fileClumpBed, gsub("<CHR>",chr,objINDEP@fileClumpBed,fixed=T))
 			objINDEP@fileClumpBed = fileClumpBed
 		} 
-	
-		for(fileClumpBedi in objINDEP@fileClumpBed) {
-			if(!file.exists(paste0(fileClumpBedi,".bed"))) {
+		for(k in 1:length(objINDEP@fileClumpBed)) {
+		#for(fileClumpBedi in objINDEP@fileClumpBed) {
+			fileClumpBedi = objINDEP@fileClumpBed[k]
+			if(k<23 & !file.exists(paste0(fileClumpBedi,".bed"))) {
 				stop(paste("EASY ERROR:INDEP\n File fileClumpBed\n ",fileClumpBedi,"\n does not exist.\n Please check path or remove --fileClumpBed.", sep=""))
 			}
 		}
@@ -331,7 +335,7 @@ INDEP.GWADATA.valid <- function(objINDEP, objGWA) {
 	### set Indep vals from Pvals 
 	if(objINDEP@acolIndep[1] == "") {
 		objINDEP@acolIndep = objINDEP@acolPval
-		objINDEP@astrIndepTag = objINDEP@astrPvalTag
+		#objINDEP@astrIndepTag = objINDEP@astrPvalTag
 		objINDEP@anumIndepLim = objINDEP@anumPvalLim
 	}
 	
@@ -367,6 +371,7 @@ INDEP.run <- function(objINDEP, objGWA, objREPORT, tblRR, isValidScript) {
 	rcdCriterion 	<- objINDEP@rcdCriterion
 	arcdCriterion 	<- objINDEP@arcdCriterion
 	astrTag 		<- objINDEP@astrTag
+	colTag 			<- objINDEP@colTag
 	## astrTag is tag for arcdCriterion
 	
 	# deprecated: 
@@ -375,7 +380,7 @@ INDEP.run <- function(objINDEP, objGWA, objREPORT, tblRR, isValidScript) {
 	# anumPvalLim		<- objINDEP@anumPvalLim
 	
 	acolIndep 		<- objINDEP@acolIndep
-	astrIndepTag 	<- objINDEP@astrIndepTag
+	#astrIndepTag 	<- objINDEP@astrIndepTag
 	anumIndepLim 	<- objINDEP@anumIndepLim
 	
 	strIndepDir		<- objINDEP@strIndepDir
@@ -405,6 +410,7 @@ INDEP.run <- function(objINDEP, objGWA, objREPORT, tblRR, isValidScript) {
 	numR2VarSize <- objINDEP@numR2VarSize
 	blnClumpInSignal <- objINDEP@blnClumpInSignal
 	## default is to clump within a cM signal
+	blnRetainRegionLead <- objINDEP@blnRetainRegionLead
 	
 	fileGene 	<- objINDEP@fileGene
 	colGeneChr 	<- objINDEP@colGeneChr
@@ -692,8 +698,11 @@ INDEP.run <- function(objINDEP, objGWA, objREPORT, tblRR, isValidScript) {
 	aChr = tInSort[,colInChr]
 	aPos = tInSort[,colInPos]
 	
-	if(blnGpos) aGPos = tInSort[,colInGPos]
-	else aGPos = rep(NA,nrow(tInSort))
+	if(blnGpos) {
+		aGPos = tInSort[,colInGPos]
+	} else {
+		aGPos = rep(NA,nrow(tInSort))
+	}
 	
 	
 	### work with aChr, aPos, aPminSort and tInSort[,acolIndep] to obtain : 
@@ -931,19 +940,32 @@ INDEP.run <- function(objINDEP, objGWA, objREPORT, tblRR, isValidScript) {
 		
 		achruni = unique(aChr)
 		
-		tfam1 = fread(paste0(fileClumpBed[1],".fam"),header=F)
-		if(fileClumpSample!="") {
-			asampleused = scan(fileClumpSample,sep="\n",what="character",quiet=TRUE)
-			aidxsample = which(tfam1$V2%in%asampleused)
-		} else {
-			aidxsample = seq(1,nrow(tfam1))
-		}
+		lsidxsample = list()
 		
+		for(k in 1:length(achruni)) {
+			chrk = achruni[k]
+			
+			tfamk = fread(paste0(fileClumpBed[as.integer(ifelse(chrk=="X",23,chrk))],".fam"),header=F)
+			
+			# tfam1 = fread(paste0(fileClumpBed[1],".fam"),header=F)
+			
+			if(fileClumpSample!="") {
+				asampleused = scan(fileClumpSample,sep="\n",what="character",quiet=TRUE)
+				#aidxsample = which(tfam1$V2%in%asampleused)
+				lsidxsample[[k]] = which(tfamk$V2%in%asampleused)
+			} else {
+				#aidxsample = seq(1,nrow(tfam1))
+				lsidxsample[[k]] = seq(1,nrow(tfamk))
+			}
+		}
 		# locusMiss <- rep(0, nrow(tInSort))
 		
 		lsClump = list()
 		
-		fnClumpChr <- function(chrk, aChr, aPos, tInSort, colInMarker, regionId, aValextSort, fileClumpBed, aidxsample, numR2PosSize, numR2VarSize, numR2Thrs, blnIndepMin) {
+		## lsClump[[k]] = fnClumpChr(chrk, aChr, aPos, tInSort, colInMarker, areaId, aValextSort, fileClumpBed, aidxsample, numR2PosSize, numR2VarSize, numR2Thrs, blnIndepMin)
+		
+		# fnClumpChr <- function(chrk, aChr, aPos, tInSort, colInMarker, regionId, aValextSort, fileClumpBed, aidxsample, numR2PosSize, numR2VarSize, numR2Thrs, blnIndepMin, blnRetainRegionLead) {
+		fnClumpChr <- function(chrk, aChr, aPos, tInSort, colInMarker, tArea, aValextSort, fileClumpBed, aidxsample, numR2PosSize, numR2VarSize, numR2Thrs, blnIndepMin, blnRetainRegionLead) {
 			
 			idxk = which(aChr==chrk)
 			
@@ -951,16 +973,19 @@ INDEP.run <- function(objINDEP, objGWA, objREPORT, tblRR, isValidScript) {
 			aPosk = aPos[idxk]
 			tInSortk = tInSort[idxk,]
 			aSnpsk = tInSortk[[colInMarker]]
-
-			regionIdk = regionId[idxk]
+			
+			regionIdk = tArea[[1]][idxk]
+			regionLeadk = tArea[[2]][idxk]
+			regionCoordinatesk = tArea[[3]][idxk]
+			regionSizek = tArea[[4]][idxk]
+			
 			# aPminSortk = aPminSort[idxk]
 			aValextSortk = aValextSort[idxk]
-			
 			
 			locusIdk <- locusLeadk <- locusCoordinatesk <- locusSizek <- locusR2k <- locusNumMissk <- rep(NA, nrow(tInSortk))
 			
 			if(length(fileClumpBed)>1) {
-				tbimk = fread(paste0(fileClumpBed[as.integer(chrk)],".bim"),header=F)
+				tbimk = fread(paste0(fileClumpBed[as.integer(ifelse(chrk=="X",23,chrk))],".bim"),header=F)
 			} else {
 				tbimk = fread(paste0(fileClumpBed,".bim"),header=F)
 			}
@@ -994,15 +1019,27 @@ INDEP.run <- function(objINDEP, objGWA, objREPORT, tblRR, isValidScript) {
 				aidxbimused = which(tbimchr$V2%in%aSnpsRegion)
 				
 				if(length(aidxbimused)==0) {
-					locusNumMissk[isRegion] = length(aSnpsRegion)
-					# locusId[isRegion] = (-1)*seq(1,sum(isRegion))
-					locusIdk[isRegion] = -9
-					# locusMiss[isRegion] = 1
+					## no region SNP is in reference panel
+					if(blnRetainRegionLead) {
+						locusNumMissk[isRegion] = length(aSnpsRegion)
+						locusIdk[isRegion] = 0
+						locusLeadk[isRegion & !is.na(regionLeadk)] = 0
+						locusCoordinatesk[isRegion] = regionCoordinatesk[isRegion]
+						locusSizek[isRegion] = regionSizek[isRegion]
+						
+					} else {
+						locusNumMissk[isRegion] = length(aSnpsRegion)
+						# locusId[isRegion] = (-1)*seq(1,sum(isRegion))
+						locusIdk[isRegion] = -9
+						# locusMiss[isRegion] = 1
+					}
+					
 				} else if(length(aidxbimused)==1) {
-					locusNumMissk[isRegion] = length(aSnpsRegion) - 1
+					
+					locusNumMissk[isRegion] = length(unique(aSnpsRegion)) - 1
 					isOneSnp = which(aSnpsk==tbimchr$V2[aidxbimused])
 					locusIdk[isOneSnp] = 1
-					locusLeadk[isOneSnp] = 1
+					locusLeadk[isOneSnp[1]] = 1
 					locusCoordinatesk[isOneSnp] = paste(chrregion,":",aPosk[isOneSnp],"_",aPosk[isOneSnp],sep="")
 					locusSizek[isOneSnp] = 1
 					locusR2k[isOneSnp] = 1
@@ -1010,7 +1047,7 @@ INDEP.run <- function(objINDEP, objGWA, objREPORT, tblRR, isValidScript) {
 				} else {
 					
 					if(length(fileClumpBed)>1) { 
-						fileClumpBedused = fileClumpBed[as.integer(chrregion)]
+						fileClumpBedused = fileClumpBed[as.integer(ifelse(chrregion=="X",23,chrregion))]
 					} else {
 						fileClumpBedused = fileClumpBed
 					}
@@ -1148,9 +1185,12 @@ INDEP.run <- function(objINDEP, objGWA, objREPORT, tblRR, isValidScript) {
 		
 		nchruni = length(achruni)
 		if(blnClumpInSignal) {
-			areaId = signalId
+			# areaId = signalId
+			tarea = data.frame(signalId, signalLead, signalCoordinates, signalSize, stringsAsFactors=F)
 		} else {
-			areaId = regionId
+			#areaId = regionId
+			
+			tarea = data.frame(regionId, regionLead, regionCoordinates, regionSize, stringsAsFactors=F)
 		}
 		
 		if(blnParal) {
@@ -1167,15 +1207,19 @@ INDEP.run <- function(objINDEP, objGWA, objREPORT, tblRR, isValidScript) {
 			lsClump = foreach(k=1:nchruni,.packages=c("bigsnpr","data.table")) %dopar% {
 #				fnCor(filePcaBed[as.integer(achruni[i])], asnps[which(achr==achruni[i])], aidxsample, numR2PosSize)
 				chrk = achruni[k]
+				aidxsample = lsidxsample[[k]]
 				# fnClumpChr(chrk, aChr, aPos, tInSort, colInMarker, areaId, aPminSort, fileClumpBed, aidxsample, numR2PosSize, numR2VarSize, numR2Thrs, blnIndepMin)
-				fnClumpChr(chrk, aChr, aPos, tInSort, colInMarker, areaId, aValextSort, fileClumpBed, aidxsample, numR2PosSize, numR2VarSize, numR2Thrs, blnIndepMin)
+				# fnClumpChr(chrk, aChr, aPos, tInSort, colInMarker, areaId, aValextSort, fileClumpBed, aidxsample, numR2PosSize, numR2VarSize, numR2Thrs, blnIndepMin, blnRetainRegionLead)
+				fnClumpChr(chrk, aChr, aPos, tInSort, colInMarker, tarea, aValextSort, fileClumpBed, aidxsample, numR2PosSize, numR2VarSize, numR2Thrs, blnIndepMin, blnRetainRegionLead)
 			}
 			stopCluster(cl)
 		} else {
 			for(k in 1:length(achruni)) {
 				chrk = achruni[k]
+				aidxsample = lsidxsample[[k]]
 				# lsClump[[k]] = fnClumpChr(chrk, aChr, aPos, tInSort, colInMarker, areaId, aPminSort, fileClumpBed, aidxsample, numR2PosSize, numR2VarSize, numR2Thrs, blnIndepMin)
-				lsClump[[k]] = fnClumpChr(chrk, aChr, aPos, tInSort, colInMarker, areaId, aValextSort, fileClumpBed, aidxsample, numR2PosSize, numR2VarSize, numR2Thrs, blnIndepMin)
+				# lsClump[[k]] = fnClumpChr(chrk, aChr, aPos, tInSort, colInMarker, areaId, aValextSort, fileClumpBed, aidxsample, numR2PosSize, numR2VarSize, numR2Thrs, blnIndepMin, blnRetainRegionLead)
+				lsClump[[k]] = fnClumpChr(chrk, aChr, aPos, tInSort, colInMarker, tarea, aValextSort, fileClumpBed, aidxsample, numR2PosSize, numR2VarSize, numR2Thrs, blnIndepMin, blnRetainRegionLead)
 			}			
 		}
 		
@@ -1194,9 +1238,11 @@ INDEP.run <- function(objINDEP, objGWA, objREPORT, tblRR, isValidScript) {
 		
 		locusId[which(locusId==-9)] = NA
 			
-		locusId = paste(areaId,locusId,sep=".") ## 1.NA, for variants missing in bed
+		# locusId = paste(areaId,locusId,sep=".") ## 1.NA, for variants missing in bed
+		locusId = paste(tarea$regionId,locusId,sep=".") ## 1.NA, for variants missing in bed
 		
-		locusLead = ifelse(is.na(locusLead), NA, paste(areaId,locusLead,sep="."))  # only set for real locusLead
+		#locusLead = ifelse(is.na(locusLead), NA, paste(areaId,locusLead,sep="."))  # only set for real locusLead
+		locusLead = ifelse(is.na(locusLead), NA, paste(tarea$regionId,locusLead,sep="."))  # only set for real locusLead
 		
 	}
 	
@@ -1211,7 +1257,9 @@ INDEP.run <- function(objINDEP, objGWA, objREPORT, tblRR, isValidScript) {
 		
 		isRegion = regionId == rid
 		
-		numvar = length(which(isRegion))
+		#numvar = length(which(isRegion))
+		numvaruni = length(unique(tInSort[[colInMarker]][isRegion]))
+		
 		if(blnRecombRate | blnGpos) numsig = length(unique(signalId[isRegion]))
 		if(blnClump) numloci = length(unique(locusId[isRegion & !grepl("NA",locusId)]))
 		
@@ -1220,27 +1268,41 @@ INDEP.run <- function(objINDEP, objGWA, objREPORT, tblRR, isValidScript) {
 		arnumsig = c()
 		arnumloc = c()
 		
-		for(i in 1:length(acolIndep)) { 
+		if(colTag == "") {
+		
+			for(i in 1:length(acolIndep)) { 
+				
+				# colp = acolIndep[i]
+				#plim = anumIndepLim[i]
+				#tag = astrTag[i]
+				
+				# isRidSignif = isRegion & tInSort[,colp]<plim
+				isRidSignif = isRegion & tCritSort[,i]
+				
+				if(any(isRidSignif)) { 
+					artag = c(artag, astrTag[i])
+					arnumvar = c(arnumvar, length(which(isRidSignif)))
+					if(blnRecombRate | blnGpos) arnumsig = c(arnumsig, length(unique(signalId[isRidSignif])))
+					if(blnClump & !blnClumpInSignal) arnumloc = c(arnumloc, length(unique(locusId[isRidSignif & !grepl("NA",locusId)])))
+				} 
+			}
+		} else {
+			## use colTag for ONE acolIndep
+			artag = sort(unique(tInSort[[colTag]][isRegion]))
+			for(rtag in artag) {
+				isRtagRegion = tInSort[[colTag]]==rtag & isRegion
+				arnumvar = c(arnumvar, length(which(isRtagRegion)))
+				if(blnRecombRate | blnGpos) arnumsig = c(arnumsig, length(unique(signalId[isRtagRegion])))
+				if(blnClump & !blnClumpInSignal) arnumloc = c(arnumloc, length(unique(locusId[isRtagRegion & !grepl("NA",locusId)])))
+			}
 			
-			# colp = acolIndep[i]
-			#plim = anumIndepLim[i]
-			#tag = astrTag[i]
-			
-			# isRidSignif = isRegion & tInSort[,colp]<plim
-			isRidSignif = isRegion & tCritSort[,i]
-			
-			if(any(isRidSignif)) { 
-				artag = c(artag, astrTag[i])
-				arnumvar = c(arnumvar, length(which(isRidSignif)))
-				if(blnRecombRate | blnGpos) arnumsig = c(arnumsig, length(unique(signalId[isRidSignif])))
-				if(blnClump & !blnClumpInSignal) arnumloc = c(arnumloc, length(unique(locusId[isRidSignif & !grepl("NA",locusId)])))
-			} 
 		}
 		
 		strrtag = ifelse(length(artag)==0,NA,ifelse(length(artag)==1, artag, paste(artag,collapse=";")))
 		regionTag[isRegion] = strrtag
 		
-		strNumVar = ifelse(length(arnumvar)==0,NA,ifelse(length(arnumvar)==1, as.character(arnumvar), paste(numvar,"(",paste(arnumvar,collapse=";"),")",sep="")))
+		#strNumVar = ifelse(length(arnumvar)==0,NA,ifelse(length(arnumvar)==1, as.character(arnumvar), paste(numvar,"(",paste(arnumvar,collapse=";"),")",sep="")))
+		strNumVar = ifelse(length(arnumvar)==0,NA,ifelse(length(arnumvar)==1, as.character(arnumvar), paste(numvaruni,"(",paste(arnumvar,collapse=";"),")",sep="")))
 		regionNumVariants[isRegion] = strNumVar
 		
 		if(blnRecombRate | blnGpos) {
@@ -1261,7 +1323,8 @@ INDEP.run <- function(objINDEP, objGWA, objREPORT, tblRR, isValidScript) {
 			
 			isSignal = signalId == sid
 			
-			numvar = length(which(isSignal))
+			#numvar = length(which(isSignal))
+			numvaruni = length(unique(tInSort[[colInMarker]][isSignal]))
 			
 			if(blnClump) numloci = length(unique(locusId[isSignal & !grepl("NA",locusId)]))
 			
@@ -1269,27 +1332,45 @@ INDEP.run <- function(objINDEP, objGWA, objREPORT, tblRR, isValidScript) {
 			asnumvar = c()
 			asnumloc = c()
 			
-			for(i in 1:length(acolIndep)) { 
-				
-				# colp = acolIndep[i]
-				# tag = astrTag[i]
-				# plim = anumIndepLim[i]
-				
-				# isSidSignif = isSignal & tInSort[,colp]<plim
-				isSidSignif = isSignal & tCritSort[,i]
-				
-				if(any(isSidSignif)) {
-					astag = c(astag, astrTag[i])
-					asnumvar = c(asnumvar, length(which(isSidSignif)))
+			if(colTag == "") {
+			
+				for(i in 1:length(acolIndep)) { 
 					
-					if(blnClump & blnClumpInSignal) asnumloc = c(asnumloc, length(unique(locusId[isSidSignif & !grepl("NA",locusId)])))
+					# colp = acolIndep[i]
+					# tag = astrTag[i]
+					# plim = anumIndepLim[i]
+					
+					# isSidSignif = isSignal & tInSort[,colp]<plim
+					isSidSignif = isSignal & tCritSort[,i]
+					
+					if(any(isSidSignif)) {
+						astag = c(astag, astrTag[i])
+						asnumvar = c(asnumvar, length(which(isSidSignif)))
+						
+						if(blnClump & blnClumpInSignal) asnumloc = c(asnumloc, length(unique(locusId[isSidSignif & !grepl("NA",locusId)])))
+					}
 				}
+			
+			} else {
+			
+				## use colTag for ONE acolIndep
+				astag = sort(unique(tInSort[[colTag]][isSignal]))
+				for(stag in astag) {
+					isStagSignal = tInSort[[colTag]]==stag & isSignal
+					asnumvar = c(asnumvar, length(which(isStagSignal)))
+					if(blnClump & !blnClumpInSignal) asnumloc = c(asnumloc, length(unique(locusId[isStagSignal & !grepl("NA",locusId)])))
+				}
+			
+			
+			
 			}
+			
 			
 			strstag = ifelse(length(astag)==0,NA,ifelse(length(astag)==1, astag, paste(astag,collapse=";")))
 			signalTag[isSignal] = strstag
 			
-			strNumVar = ifelse(length(asnumvar)==0,NA,ifelse(length(asnumvar)==1, as.character(asnumvar), paste(numvar,"(",paste(asnumvar,collapse=";"),")",sep="")))
+			#strNumVar = ifelse(length(asnumvar)==0,NA,ifelse(length(asnumvar)==1, as.character(asnumvar), paste(numvar,"(",paste(asnumvar,collapse=";"),")",sep="")))
+			strNumVar = ifelse(length(asnumvar)==0,NA,ifelse(length(asnumvar)==1, as.character(asnumvar), paste(numvaruni,"(",paste(asnumvar,collapse=";"),")",sep="")))
 			signalNumVariants[isSignal] = strNumVar
 			
 			if(blnClump & blnClumpInSignal) {
@@ -1309,30 +1390,44 @@ INDEP.run <- function(objINDEP, objGWA, objREPORT, tblRR, isValidScript) {
 			
 			isLocus = locusId == lid
 			
-			numvar = length(which(isLocus))
+			#numvar = length(which(isLocus))
+			numvaruni = length(unique(tInSort[[colInMarker]][isLocus]))
 			
 			altag = c()
 			alnumvar = c()
 			
-			for(i in 1:length(acolIndep)) { 
-				
-				# colp = acolIndep[i]
-				# tag = astrTag[i]
-				# plim = anumIndepLim[i]
-				
-				# isLidSignif = isLocus & tInSort[,colp]<plim
-				isLidSignif = isLocus & tCritSort[,i]
-				
-				if(any(isLidSignif)) {
-					altag = c(altag, astrTag[i])
-					alnumvar = c(alnumvar, length(which(isLidSignif)))
+			if(colTag == "") {
+			
+				for(i in 1:length(acolIndep)) { 
+					
+					# colp = acolIndep[i]
+					# tag = astrTag[i]
+					# plim = anumIndepLim[i]
+					
+					# isLidSignif = isLocus & tInSort[,colp]<plim
+					isLidSignif = isLocus & tCritSort[,i]
+					
+					if(any(isLidSignif)) {
+						altag = c(altag, astrTag[i])
+						alnumvar = c(alnumvar, length(which(isLidSignif)))
+					}
 				}
+			} else {
+			
+				altag = sort(unique(tInSort[[colTag]][isLocus]))
+				for(ltag in altag) {
+					isLtagLocus = tInSort[[colTag]]==ltag & isLocus
+					alnumvar = c(alnumvar, length(which(isLtagLocus)))
+				}
+			
 			}
+			
 			
 			strltag = ifelse(length(altag)==0,NA,ifelse(length(altag)==1, altag, paste(altag,collapse=";")))
 			locusTag[isLocus] = strltag
 			
-			strNumVar = ifelse(length(alnumvar)==0,NA,ifelse(length(alnumvar)==1, as.character(alnumvar), paste(numvar,"(",paste(alnumvar,collapse=";"),")",sep="")))
+			#strNumVar = ifelse(length(alnumvar)==0,NA,ifelse(length(alnumvar)==1, as.character(alnumvar), paste(numvar,"(",paste(alnumvar,collapse=";"),")",sep="")))
+			strNumVar = ifelse(length(alnumvar)==0,NA,ifelse(length(alnumvar)==1, as.character(alnumvar), paste(numvaruni,"(",paste(alnumvar,collapse=";"),")",sep="")))
 			locusNumVariants[isLocus] = strNumVar
 		}
 	}

@@ -142,7 +142,9 @@ ADDGENE.run <- function(objADDGENE, objGWA) {
 	
 	aColAdd = names(objGWA.addgene@tblGWA)[ ! names(objGWA.addgene@tblGWA) %in% names(objGWA@tblGWA)]
 	objGWA.addgene = GWADATA.getcols(objGWA.addgene, c(colInMarker, aColAdd))
-
+	
+	objGWA.addgene <- GWADATA.getrows(objGWA.addgene, which(!duplicated(objGWA.addgene@tblGWA)))
+	
 	objGWA <- GWADATA.merge(objGWA,objGWA.addgene, strSuffix.In = "", strSuffix.Add = "", blnAll.In = TRUE, blnAll.Add = TRUE, strBy.In = colInMarker, strBy.Add = colInMarker)
 	
 	return(objGWA)

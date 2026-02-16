@@ -3,13 +3,15 @@ setClass("MERGEEASYIN",
 						strEqcCommand				=	"character",
 						colInMarker					=	"character",
 						fileOutShortName			=	"character",
-						blnMergeAll					=	"logical"
+						blnMergeAll					=	"logical",
+						blnRbind					=	"logical"
 						),
 	prototype = prototype(
 						strEqcCommand				=	"",
 						colInMarker					=	"",
 						fileOutShortName			=	"",
-						blnMergeAll					=	FALSE
+						blnMergeAll					=	FALSE,
+						blnRbind					=	FALSE
 						)
 
 )
@@ -18,7 +20,7 @@ setGeneric("setMERGEEASYIN", function(object) standardGeneric("setMERGEEASYIN"))
 setMethod("setMERGEEASYIN", signature = (object = "MERGEEASYIN"), function(object) {
 	
 	#aEqcSlotNamesIn = c("colInMarker", "fileOutShortName", "blnMergeAll") 
-	aEqcSlotNamesIn = c("colInMarker", "blnMergeAll") 
+	aEqcSlotNamesIn = c("colInMarker", "blnMergeAll","blnRbind") 
 	
 	### Last 4 are inherited from class GWADATA and can be used with MERGEEASYIN for reference file!
 						
@@ -40,7 +42,7 @@ setMethod("setMERGEEASYIN", signature = (object = "MERGEEASYIN"), function(objec
 #############################################################################################################################
 validMERGEEASYIN <- function(objME) {
 	
-	if(objME@colInMarker == "")
+	if(!objME@blnRbind & objME@colInMarker == "")
 		stop(paste(" EASY ERROR:MERGEEASYIN\n No input Marker column defined. \n Please define colInMarker that will be used for merging the EASYIN data-sets.", sep=""))
 	
 	return(TRUE)
@@ -49,7 +51,7 @@ validMERGEEASYIN <- function(objME) {
 MERGEEASYIN.GWADATA.valid <- function(objME, objGWA) {
 	
 	isAv <- objME@colInMarker %in% objGWA@aHeader
-	if(!isAv)
+	if(!objME@blnRbind & !isAv)
 		stop(paste(" EASY ERROR:MERGEEASYIN\n Defined column colInMarker \n",objME@colInMarker, "\n is not available in GWA data-set \n",objGWA@fileIn,"\n PLease specify correct column name.", sep=""))
 
 }
@@ -61,10 +63,12 @@ MERGEEASYIN.start <- function(objME, objGWADATA.default, objGWA) {
 	
 	icolMarker <- match(objME@colInMarker, objGWA@aHeader)
 	
-	aHeaderTmp <- objGWA.merged@aHeader
-	aHeaderTmp[-icolMarker] <- paste(aHeaderTmp[-icolMarker],objGWA.merged@fileInTag ,sep=".")
-	objGWA.merged@tblGWA <- setNames(objGWA.merged@tblGWA,aHeaderTmp)
-	objGWA.merged@aHeader <- aHeaderTmp
+	if(!objME@blnRbind) {
+		aHeaderTmp <- objGWA.merged@aHeader
+		aHeaderTmp[-icolMarker] <- paste(aHeaderTmp[-icolMarker],objGWA.merged@fileInTag ,sep=".")
+		objGWA.merged@tblGWA <- setNames(objGWA.merged@tblGWA,aHeaderTmp)
+		objGWA.merged@aHeader <- aHeaderTmp
+	}
 	
 	## Reset GWADATA values
 	objGWA.merged@fileInType		<- "GWADATA"
@@ -75,9 +79,14 @@ MERGEEASYIN.start <- function(objME, objGWADATA.default, objGWA) {
 	objGWA.merged@acolInClasses <- ""
 	objGWA.merged@aHeaderRead 	<- ""
 	objGWA.merged@aClassesRead 	<- ""
-	objGWA.merged@blnMergedEasyin <- TRUE
 	
-	objGWA.merged@fileIn 			<- objME@fileOutShortName
+	if(objME@blnRbind) {
+		objGWA.merged@blnRbindedEasyin <- TRUE
+	} else {
+		objGWA.merged@blnMergedEasyin <- TRUE
+	}
+	
+	objGWA.merged@fileIn <- objME@fileOutShortName
 	
 	fileInShortName <- objME@fileOutShortName
 	
@@ -106,28 +115,45 @@ MERGEEASYIN.run <- function(objME, objGWA.merged, objGWA) {
 
 	#objGWA.merged <- objGWA
 	
-	icolMarker <- match(objME@colInMarker, objGWA@aHeader)
-	#objGWA@aHeader[-icolMarker] <- names(objGWA@tblGWA)[-icolMarker] <- paste(objGWA@aHeader[-icolMarker],objGWA@fileInStrat ,sep=".")
 	
-	aHeaderTmp 	<- objGWA@aHeader
-	aHeaderTmp[-icolMarker] <- paste(aHeaderTmp[-icolMarker],objGWA@fileInTag ,sep=".")
-	objGWA@tblGWA  <- setNames(objGWA@tblGWA,aHeaderTmp)
-	objGWA@aHeader <- aHeaderTmp
-	
-	objGWA.merged <- GWADATA.merge(objGWA.merged, objGWA, 
-						strSuffix.In = "", 
-						strSuffix.Add = "", 
-						blnAll.In = objME@blnMergeAll, 
-						blnAll.Add = objME@blnMergeAll, 
-						strBy.In = objME@colInMarker, 
-						strBy.Add = objME@colInMarker
-					) 
-	#objGWA.merged@blnMergedEasyin 	<- TRUE
-	objGWA.merged@fileInTag 		<- paste(objGWA.merged@fileInTag,objGWA@fileInTag,sep="_")
-	objGWA.merged@fileInStrat 		<- paste(objGWA.merged@fileInStrat,objGWA@fileInStrat,sep="_")
-	#objGWA.merged@fileInShortName 	<- paste(objGWA.merged@fileInShortName,objGWA@fileInStrat,sep="_")
-	#objGWA.merged@fileInShortName <- paste(objGWA.merged@fileInShortName,objGWA@fileInShortName,sep=".")
+	if(!objME@blnRbind) {
+		icolMarker <- match(objME@colInMarker, objGWA@aHeader)
+		#objGWA@aHeader[-icolMarker] <- names(objGWA@tblGWA)[-icolMarker] <- paste(objGWA@aHeader[-icolMarker],objGWA@fileInStrat ,sep=".")
 		
+		aHeaderTmp 	<- objGWA@aHeader
+		aHeaderTmp[-icolMarker] <- paste(aHeaderTmp[-icolMarker],objGWA@fileInTag ,sep=".")
+		objGWA@tblGWA  <- setNames(objGWA@tblGWA,aHeaderTmp)
+		objGWA@aHeader <- aHeaderTmp
+		
+		objGWA.merged <- GWADATA.merge(objGWA.merged, objGWA, 
+							strSuffix.In = "", 
+							strSuffix.Add = "", 
+							blnAll.In = objME@blnMergeAll, 
+							blnAll.Add = objME@blnMergeAll, 
+							strBy.In = objME@colInMarker, 
+							strBy.Add = objME@colInMarker
+						) 
+		#objGWA.merged@blnMergedEasyin 	<- TRUE
+		objGWA.merged@fileInTag 		<- paste(objGWA.merged@fileInTag,objGWA@fileInTag,sep="_")
+		objGWA.merged@fileInStrat 		<- paste(objGWA.merged@fileInStrat,objGWA@fileInStrat,sep="_")
+		#objGWA.merged@fileInShortName 	<- paste(objGWA.merged@fileInShortName,objGWA@fileInStrat,sep="_")
+		#objGWA.merged@fileInShortName <- paste(objGWA.merged@fileInShortName,objGWA@fileInShortName,sep=".")
+	} else { 
+		objGWA.merged <- GWADATA.rbind(objGWA.merged, objGWA)
+		
+		# objGWA.merged <- GWADATA.merge(objGWA.merged, objGWA, 
+							# strSuffix.In = "", 
+							# strSuffix.Add = "", 
+							# blnAll.In = objME@blnMergeAll, 
+							# blnAll.Add = objME@blnMergeAll, 
+							# strBy.In = objME@colInMarker, 
+							# strBy.Add = objME@colInMarker
+						# ) 
+	
+	}
+	
+	
+	
 	return(objGWA.merged)
 }
 #############################################################################################################################

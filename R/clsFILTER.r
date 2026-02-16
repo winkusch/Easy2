@@ -43,7 +43,7 @@ validFILTER <- function(objFILTER) {
 }
 
 #############################################################################################################################
-FILTER.run <- function(objFILTER, objGWA, objREPORT) {
+FILTER.run <- function(objFILTER, objGWA, objREPORT, blnSuppressFilter) {
 	
 
 	rcdFilter		<- objFILTER@rcdFilter
@@ -65,7 +65,9 @@ FILTER.run <- function(objFILTER, objGWA, objREPORT) {
 	# GWADATA.write(objGWA.Duplicates, "filter", "2")
 	
 	#if(any(out)) objGWA <- GWADATA.getrows(objGWA, which(out))
-	objGWA <- GWADATA.getrows(objGWA, which(out))
+	# objGWA <- GWADATA.getrows(objGWA, which(out))
+	if(!blnSuppressFilter) objGWA <- GWADATA.getrows(objGWA, which(out))
+	
 	
 	objREPORT <- REPORT.addval(objREPORT,strFilterName,numOut)
 

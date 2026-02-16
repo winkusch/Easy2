@@ -35,7 +35,7 @@ setClass("FORESTPLOT",
 						strTag				=	"character",
 						isBeta				=	"logical",
 						isSe				=	"logical",
-						isXlog				= 	"logical",
+						numZero				= 	"numeric",
 						colSummary			= 	"character",
 						numBoxsize			=	"numeric"
 						),
@@ -75,7 +75,7 @@ setClass("FORESTPLOT",
 						strTag				=	"",
 						isBeta				= 	TRUE,
 						isSe				= 	TRUE,
-						isXlog				= 	FALSE,
+						numZero				= 	0,
 						colSummary			= 	"",
 						numBoxsize			=	-1
 						)
@@ -230,7 +230,7 @@ FORESTPLOT.GWADATA.valid <- function(objFP, objGWA) {
 		
 	} else {
 		
-		objFP@isXlog <- TRUE
+		objFP@numZero <- 1
 		if(objFP@strXlab == "Beta") objFP@strXlab <- "OR"
 		
 		numGroups = length(objFP@acolOr)
@@ -293,7 +293,8 @@ FORESTPLOT.GWADATA.valid <- function(objFP, objGWA) {
 }
 
 
-FORESTPLOT.run <- function(objFP, objGWA, objREPORT) {
+#FORESTPLOT.run <- function(objFP, objGWA, objREPORT) {
+FORESTPLOT.run <- function(objFP, objGWA) {
 	#function(tblPlot,acolQQPlot,astrColour,blnCombined,rcdNumCIBounds,fileOut)
 	
 	rcdCriterion 	<- objFP@rcdCriterion
@@ -329,7 +330,7 @@ FORESTPLOT.run <- function(objFP, objGWA, objREPORT) {
 	anumXAxisLim	<- objFP@anumXAxisLim
 	isBeta			<- objFP@isBeta
 	isSe			<- objFP@isSe
-	isXlog			<- objFP@isXlog
+	numZero			<- objFP@numZero
 	colSummary		<- objFP@colSummary
 	numBoxsize		<- objFP@numBoxsize
 	############################
@@ -452,7 +453,7 @@ FORESTPLOT.run <- function(objFP, objGWA, objREPORT) {
 	
 	if(length(astrLegendText)==1) blnLegend = FALSE ## otherwise get the closure err
 	
-	fpcommand = "forestplot(tText, 
+	fpcommand = "print(forestplot(tText, 
 					mean = tMean,
 					lower = tCiLow,
 					upper = tCiUpp,
@@ -468,21 +469,41 @@ FORESTPLOT.run <- function(objFP, objGWA, objREPORT) {
 									xlab  = gpar(cex = numCexXLabel),
 									summary = gpar(fontface='bold')),
 					hrzl_lines = gpar(col='grey'),
-					xlog=isXlog
-				)"
+					zero=numZero
+				))"
 	
-	if(blnLegend) fpcommand = paste(substring(fpcommand,1,nchar(fpcommand)-1),"legend = astrLegendText)",sep=",")
-	if(numBoxsize != -1) fpcommand = paste(substring(fpcommand,1,nchar(fpcommand)-1),"boxsize = numBoxsize)",sep=",")
-	if(any(astrSymbol!="square")) {
-		scommand = paste(astrSymbol,collapse=",")
-		scommand = gsub("square","fpDrawNormalCI",scommand)
-		scommand = gsub("circle","fpDrawCircleCI",scommand)
-		scommand = paste("fn.ci_norm=c(",scommand,")",sep="")
-		# fn.ci_norm = c(fpDrawNormalCI, fpDrawCircleCI)
-		fpcommand = paste(substring(fpcommand,1,nchar(fpcommand)-1),scommand,")",sep=",")
-	}
+	# # fpcommand="print(forestplot(tText,mean=tMean,lower=tCiLow,upper=tCiUpp,is.summary=aisSummary,col=fpColors(box=astrColour,lines=astrColourCi,summary=astrColour),ci.vertices=TRUE,clip=anumXAxisLim,xlab=strXlab,txt_gp=fpTxtGp(label=list(gpar(cex=numCexText)),ticks=gpar(cex=numCexXTicks),xlab=gpar(cex=numCexXLabel),summary=gpar(fontface='bold')),hrzl_lines=gpar(col='grey'),xlog=isXlog))"
 	
+	# print(forestplot(tText,mean=tMean,lower=tCiLow,upper=tCiUpp,is.summary=aisSummary))
+	
+	# print(tText)
+	# print(tMean)
+	# print(tCiLow)
+	# print(tCiUpp)
+	
+	# print(forestplot)
+	
+	#forestplot(tText,mean=tMean,lower=tCiLow,upper=tCiUpp,is.summary=aisSummary,col=fpColors(box=astrColour,lines=astrColourCi,summary=astrColour),ci.vertices=TRUE,clip=anumXAxisLim,xlab=strXlab,txt_gp=fpTxtGp(label=list(gpar(cex=numCexText)),ticks=gpar(cex=numCexXTicks),xlab=gpar(cex=numCexXLabel),summary=gpar(fontface='bold')),hrzl_lines=gpar(col='grey'),xlog=isXlog)
+	#forestplot(tText[,1],mean=tMean[,1],lower=tCiLow[,1],upper=tCiUpp[,1])
+	# forestplot(tText,mean=tMean,lower=tCiLow,upper=tCiUpp)
+	
+	#plot(x=tCiLow[,1],y=tCiUpp[,1])
+	
+	# if(blnLegend) fpcommand = paste(substring(fpcommand,1,nchar(fpcommand)-1),"legend = astrLegendText)",sep=",")
+	# if(numBoxsize != -1) fpcommand = paste(substring(fpcommand,1,nchar(fpcommand)-1),"boxsize = numBoxsize)",sep=",")
+	# if(any(astrSymbol!="square")) {
+		# scommand = paste(astrSymbol,collapse=",")
+		# scommand = gsub("square","fpDrawNormalCI",scommand)
+		# scommand = gsub("circle","fpDrawCircleCI",scommand)
+		# scommand = paste("fn.ci_norm=c(",scommand,")",sep="")
+		# # fn.ci_norm = c(fpDrawNormalCI, fpDrawCircleCI)
+		# fpcommand = paste(substring(fpcommand,1,nchar(fpcommand)-1),scommand,")",sep=",")
+	# }
+	# print(forestplot(tText,mean = tMean,lower = tCiLow,upper = tCiUpp,is.summary = aisSummary, col = fpColors(box=astrColour,lines = astrColourCi,summary = astrColour),ci.vertices=TRUE,clip = anumXAxisLim,xlab=strXlab,txt_gp = fpTxtGp(label = list(gpar(cex=numCexText)),ticks = gpar(cex=numCexXTicks),xlab  = gpar(cex = numCexXLabel),summary = gpar(fontface='bold'))))
+	# print(forestplot(tText,mean = tMean,lower = tCiLow,upper = tCiUpp,is.summary = aisSummary, col = fpColors(box=astrColour,lines = astrColourCi,summary = astrColour),ci.vertices=TRUE,clip = anumXAxisLim,xlab=strXlab,txt_gp = fpTxtGp(label = list(gpar(cex=numCexText)),ticks = gpar(cex=numCexXTicks),xlab  = gpar(cex = numCexXLabel),summary = gpar(fontface='bold'))))
+					
 	eval(parse(text = fpcommand))
+	# eval(str2expression(fpcommand))
 	
 	return(TRUE)
 	

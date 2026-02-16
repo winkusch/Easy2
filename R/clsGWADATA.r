@@ -5,7 +5,6 @@ setClass("GWADATA",
 						fileInShortName				=	"character",
 						fileInTag					=	"character",
 						fileInMergeTag				=	"character",
-						fileInRbindTag				=	"character",
 						fileInStrat					=	"character",
 						fileInTrait					=	"character",
 						fileInType					=	"character",
@@ -27,6 +26,7 @@ setClass("GWADATA",
 						strSuffix					=	"character",
 						numMergeIdx 				=	"numeric",
 						blnMergedEasyin				=	"logical",
+						blnRbindedEasyin			=	"logical",
 						blnMergedStrat				=	"logical",
 						blnRbindTraits				=	"logical",
 						blnHeaderCommented			=	"logical",
@@ -56,7 +56,6 @@ setClass("GWADATA",
 						fileInShortName				=	"",
 						fileInTag					=	"1",
 						fileInMergeTag				=	"1",
-						fileInRbindTag				=	"1",
 						fileInStrat					=	"1",
 						fileInTrait					=	"1",
 						fileInType					=	"GWADATA",
@@ -77,6 +76,7 @@ setClass("GWADATA",
 						strSuffix					=	"",
 						numMergeIdx 				=	0,
 						blnMergedEasyin				=	FALSE,
+						blnRbindedEasyin			=	FALSE,
 						blnMergedStrat				=	FALSE,
 						blnRbindTraits				=	FALSE,
 						blnHeaderCommented			=	FALSE,
@@ -160,7 +160,6 @@ GWADATA.easyin <- function(objGWA, strConfigCommand) {
 						"fileInShortName", 
 						"fileInTag", 
 						"fileInMergeTag", 
-						"fileInRbindTag", 
 						"fileInStrat", 
 						"fileInTrait", 
 						"fileInType", 
@@ -295,7 +294,6 @@ GWADATA.getfiles <- function(objGWADATA) {
 		objGWADATAtmp@fileInShortName 	= strsplit(afilesIn_temp[i],"/")[[1]][length(strsplit(afilesIn_temp[i],"/")[[1]])]
 		objGWADATAtmp@fileInTag 		= "1"
 		objGWADATAtmp@fileInMergeTag 	= "1"
-		objGWADATAtmp@fileInRbindTag 	= "1"
 		objGWADATAtmp@fileInTrait 		= "1"
 		objGWADATAtmp@fileInStrat 		= "1"
 		objGWADATAtmp@fileInType		= "GWADATA"

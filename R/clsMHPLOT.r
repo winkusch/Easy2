@@ -277,6 +277,9 @@ MHPLOT.run <- function(objMHPLOT, objGWA) {
 	iVal = match(colMHPlot, names(objGWA@tblGWA))
 	objGWA@tblGWA[[iVal]] = as.numeric(objGWA@tblGWA[[iVal]])
 	iChr = match(colInChr, names(objGWA@tblGWA))
+	isX = objGWA@tblGWA[[iChr]] == "X"
+	objGWA@tblGWA[[iChr]][isX] = 23
+	
 	objGWA@tblGWA[[iChr]] = as.numeric(objGWA@tblGWA[[iChr]])
 	iPos = match(colInPos, names(objGWA@tblGWA))
 	objGWA@tblGWA[[iPos]] = as.numeric(objGWA@tblGWA[[iPos]])
@@ -382,6 +385,10 @@ MHPLOT.run <- function(objMHPLOT, objGWA) {
 	### Annot
 	if(fileAnnot != "") {
 		tblAnnot<-read.table(fileAnnot,header=T, sep="\t", stringsAsFactors=FALSE, comment.char="",quote="")
+		
+		isX = tblAnnot$Chr=="X"
+		tblAnnot$Chr[isX] = 23
+		
 		
 		if(rcdAnnotSignif=="") {
 			isSignif <- tblPlot$y > -log10(numAnnotPvalLim)

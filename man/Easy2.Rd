@@ -1,7 +1,7 @@
 \name{Easy2}
 \alias{Easy2}
 \title{
-Function to run Easy2 (1.2.4.b30).
+Function to run Easy2 (1.3.4.b42).
 }
 \description{
 The Function takes the an Easy2 config/script (ECF-) file and performs all steps defined in the ECF-file.
