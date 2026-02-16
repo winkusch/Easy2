@@ -54,6 +54,7 @@ Thomas Winkler, University of Regensburg, Germany
 ## Version History
 
 * 1.2.4 first git release
+* 1.3.4 second git release
 
 ## Citation
 
