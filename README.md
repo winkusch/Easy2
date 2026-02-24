@@ -55,6 +55,7 @@ Thomas Winkler, University of Regensburg, Germany
 
 * 1.2.4 first git release
 * 1.3.4 second git release
+* 1.3.5 added log files for anh
 
 ## Citation
 
