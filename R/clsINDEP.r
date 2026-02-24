@@ -45,6 +45,7 @@ setClass("INDEP",
 						blnAddIndepInfo 	= 	"logical",
 						#blnAddIndepInfoExtCoord 	= 	"logical",
 						colInMarker		 	= 	"character",
+						blnDebugAnh 		= 	"logical",
 						strTag				=	"character"
 						),
 	prototype = prototype(
@@ -93,6 +94,7 @@ setClass("INDEP",
 						blnAddIndepInfo 	= 	FALSE,
 						#blnAddIndepInfoExtCoord 	= 	FALSE,
 						colInMarker			=	"",
+						blnDebugAnh			= 	FALSE,
 						strTag				=	"INDEP"
 						)
 	#contains = c("EcfReader")
@@ -107,7 +109,7 @@ setMethod("setINDEP", signature = (object = "INDEP"), function(object) {
 						"fileClumpBed","fileClumpSample","numR2Thrs","blnParal","pathLibLoc","numR2PosSize","numR2VarSize","blnClumpInSignal","blnRetainRegionLead",
 						"fileGene","colGeneChr","colGenePosStart","colGenePosStop","colGeneName",
 						"fileAnnot","strAnnotTag","colAnnotTag","colAnnotChr","colAnnotPos","colAnnotCoord","numAnnotPosLim",
-						"blnAddIndepInfo","colInMarker","strTag",
+						"blnAddIndepInfo","colInMarker","blnDebugAnh","strTag",
 						"colInGPos","numGPosLim")
 	
 	objEqcReader <- EqcReader(object@strEqcCommand,aEqcSlotNamesIn)
@@ -1054,6 +1056,11 @@ INDEP.run <- function(objINDEP, objGWA, objREPORT, tblRR, isValidScript) {
 					
 					# matcorused = bed_cor(bed(paste0(fileClumpBedused,".bed")), ind.col=aidxbimused, ind.row = aidxsample, size=length(aidxbimused))
 					# matcorused = bed_cor(bed(paste0(fileClumpBedused,".bed")), ind.col = aidxbimused, ind.row = aidxsample, size = length(aidxbimused))
+					
+					if(objINDEP@blnDebugAnh) {
+						lsTest = list(fileClumpBedused=fileClumpBedused, aidxbimused=aidxbimused, aidxsample=aidxsample, tbimchr_V4=tbimchr$V4, numR2PosSize=numR2PosSize, numR2VarSize=numR2VarSize)
+						save(lsTest, file=paste0(objGWA@pathOut,"/",objGWA@fileInShortName,".m",m,".rid",rid,".foranh.rds"))
+					}
 					
 					if(numR2PosSize!=-9) {
 						matcorused = bed_cor(bed(paste0(fileClumpBedused,".bed")), ind.col = aidxbimused, ind.row = aidxsample, infos.pos = tbimchr$V4[aidxbimused], size = floor(numR2PosSize/1000))

@@ -82,7 +82,7 @@ fnSetFileInTagCol <- function(objGWA) {
 Easy2.run <- function(fileECF,blnValidityCheckOnly=FALSE,blnReturnGwadata=FALSE,blnReturnReport=FALSE,aFileIn=c(),fileMerge=NA,pathOut=NA){ 
 	
 	cat("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n")
-	cat("|       Easy2	   |      1.3.4.b42  |     23/October/2025    |\n")
+	cat("|       Easy2	   |      1.3.5.b43  |     24/February/2026   |\n")
 	cat("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n")
 	cat("|  (C) 2013 Thomas Winkler, GNU General Public License, v3   |\n")
 	cat("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n")
